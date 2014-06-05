@@ -1,0 +1,5 @@
+* daemon not running. starting it now on port 5030 *
+* daemon started successfully *
+List of devices attached 
+7L7SL7PFVG6PTCJN-89C7296A	device
+
