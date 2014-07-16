@@ -376,6 +376,7 @@ int  adb_creat(const char*  path, int  mode)
     }
 	std::wstring wstr;
 	UTF8_to_Unicode(path, strlen(path), wstr);
+	wstr.replace(2, 1, L"/");
 	f->fh_handle = CreateFileW(wstr.c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
                                NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL,
                                NULL );
@@ -383,6 +384,7 @@ int  adb_creat(const char*  path, int  mode)
     if ( f->fh_handle == INVALID_HANDLE_VALUE ) {
         _fh_close(f);
         D( "adb_creat: could not open '%s':", path );
+		DWORD err = GetLastError();
         switch (GetLastError()) {
             case ERROR_FILE_NOT_FOUND:
                 D( "file not found\n" );
@@ -536,6 +538,7 @@ _fh_socket_write( FH  f, const void*  buf, int  len )
         _socket_set_errno();
         result = -1;
     }
+
     return result;
 }
 
@@ -645,7 +648,7 @@ int socket_loopback_server(int port, int type)
     f->fh_socket = s;
 
     n = 1;
-    setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char*)&n, sizeof(n));
+	setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char*)&n, sizeof(n));
 
     if(bind(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         _fh_close(f);
@@ -741,7 +744,7 @@ int socket_inaddr_any_server(int port, int type)
 
     f->fh_socket = s;
     n = 1;
-    setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char*)&n, sizeof(n));
+	setsockopt(s, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char*)&n, sizeof(n));
 
     if(bind(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         _fh_close(f);

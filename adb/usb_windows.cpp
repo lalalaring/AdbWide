@@ -438,7 +438,8 @@ int recognized_device(usb_handle* handle) {
   }
 
   if (is_adb_interface(device_desc.idVendor, device_desc.idProduct,
-      interf_desc.bInterfaceClass, interf_desc.bInterfaceSubClass, interf_desc.bInterfaceProtocol)) {
+      interf_desc.bInterfaceClass, interf_desc.bInterfaceSubClass, interf_desc.bInterfaceProtocol))
+  {
 
     if(interf_desc.bInterfaceProtocol == 0x01) {
       AdbEndpointInformation endpoint_info;
@@ -454,7 +455,8 @@ int recognized_device(usb_handle* handle) {
   return 0;
 }
 
-void find_devices() {
+void find_devices()
+{
         usb_handle* handle = NULL;
   char entry_buffer[2048];
   char interf_name[2048];

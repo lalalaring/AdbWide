@@ -502,20 +502,39 @@ fail:
 
 static int mkdirs(const char *name)
 {
-    int ret;
-    char *x = (char *)name + 1;
 
-    for(;;) {
-        x = adb_dirstart(x);
-        if(x == 0) return 0;
-        *x = 0;
-        ret = adb_mkdir(name, 0775);
-        *x = OS_PATH_SEPARATOR;
-        if((ret < 0) && (errno != EEXIST)) {
-            return ret;
-        }
-        x++;
-    }
+	char strFilePath[260];
+	char strTemp[260];
+	char *s, *p;
+
+	strcpy(strFilePath, name);
+
+	s = strFilePath;
+	do
+	{
+		p = strchr(s, '/');
+		if (p)
+		{
+			*p = '\0';
+		}
+		s = strFilePath;
+
+		// directory doesn't exist
+		if (-1 == _access(s, 0))
+		{
+			// failed to create directory.
+			if (-1 == _mkdir(s))
+			{
+				return (FALSE);
+			}
+		}
+
+		if (p)
+		{
+			*p = '/';
+			s = p + 1;
+		}
+	} while (p);
     return 0;
 }
 
@@ -566,11 +585,13 @@ int sync_recv(int fd, const char *rpath, const char *lpath, int show_progress)
 
     if((id == ID_DATA) || (id == ID_DONE)) {
         adb_unlink(lpath);
-        mkdirs(lpath);
+		std::string str;
+		UTF8_to_GBK(lpath, strlen(lpath), str);
+		str.replace(2, 1, "/");
+        mkdirs(str.substr(0,str.find_last_of("/")).c_str());
         lfd = adb_creat(lpath, 0644);
         if(lfd < 0) {
-			std::string str;
-			UTF8_to_GBK(lpath, strlen(lpath), str);
+
             fprintf(stderr,"cannot create '%s': %s\n", str.c_str(), strerror(errno));
             return -1;
         }
@@ -699,23 +720,25 @@ copyinfo *mkcopyinfo(const char *spath, const char *dpath,
         fprintf(stderr,"out of memory\n");
         abort();
     }
-	std::string strs;
-	UTF8_to_GBK(spath, strlen(spath), strs);
-	std::string strd;
-	UTF8_to_GBK(dpath, strlen(dpath), strd);
-	std::string strn;
-	UTF8_to_GBK(name, strlen(name), strn);
+	//std::string strs;
+	//UTF8_to_GBK(spath, strlen(spath), strs);
+	//std::string strd;
+	//UTF8_to_GBK(dpath, strlen(dpath), strd);
+	//std::string strn;
+	//UTF8_to_GBK(name, strlen(name), strn);
     ci->next = 0;
     ci->time = 0;
     ci->mode = 0;
     ci->size = 0;
     ci->flag = 0;
-    ci->src = (const char*)(ci + 1);
-    ci->dst = ci->src + ssize;
-	snprintf((char*)ci->src, ssize, isdir ? "%s%s/" : "%s%s", strs.c_str(), strn.c_str());
-	snprintf((char*)ci->dst, dsize, isdir ? "%s%s/" : "%s%s", strd.c_str(), strn.c_str());
 
-//    fprintf(stderr,"mkcopyinfo('%s','%s')\n", ci->src, ci->dst);
+    ci->src = (const char*)(ci + 1);
+
+    ci->dst = ci->src + ssize;
+	snprintf((char*)ci->src, ssize, isdir ? "%s%s/" : "%s%s", spath,name);// strs.c_str(), strn.c_str());
+	snprintf((char*)ci->dst, dsize, isdir ? "%s%s/" : "%s%s", dpath,name);// strd.c_str(), strn.c_str());
+
+   // fprintf(stderr,"mkcopyinfo('%s','%s')\n", ci->src, ci->dst);
     return ci;
 }
 
@@ -1075,7 +1098,8 @@ static int remote_build_list(int syncfd, copyinfo **filelist,
     }
 
     /* Recurse into each directory we found. */
-    while (dirlist != NULL) {
+    while (dirlist != NULL)
+	{
         copyinfo *next = dirlist->next;
         if (remote_build_list(syncfd, filelist, dirlist->src, dirlist->dst)) {
             return 1;
@@ -1140,9 +1164,12 @@ static int copy_remote_dir_local(int fd, const char *rpath, const char *lpath,
 #endif
     for (ci = filelist; ci != 0; ci = next) {
         next = ci->next;
-        if (ci->flag == 0) {
-            fprintf(stderr, "pull: %s -> %s\n", ci->src, ci->dst);
-            if (sync_recv(fd, ci->src, ci->dst, 0 /* no show progress */)) {
+        if (ci->flag == 0)
+		{
+			//std::string str;
+			//UTF8_to_GBK(ci->dst, strlen(ci->dst), str);
+            fprintf(stderr, "pull: %s -> %s\n", ci->src,ci->dst);
+			if (sync_recv(fd, ci->src, ci->dst, 0 /* no show progress */)) {
                 return 1;
             }
             pulled++;
@@ -1183,8 +1210,10 @@ int do_sync_pull(const char *rpath, const char *lpath, int show_progress)
 
     if(S_ISREG(mode) || S_ISLNK(mode) || S_ISCHR(mode) || S_ISBLK(mode))
 	{
-        if(stat(lpath, &st) == 0) {
-            if(S_ISDIR(st.st_mode)) {
+        if(stat(lpath, &st) == 0)
+		{
+            if(S_ISDIR(st.st_mode))
+			{
                     /* if we're copying a remote file to a local directory,
                     ** we *really* want to copy to localdir + "/" + remotefilename
                     */

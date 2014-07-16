@@ -429,7 +429,7 @@ void adb_qemu_trace(const char* fmt, ...);
 //躲开别人家端口
 #  define DEFAULT_ADB_PORT 5038
 #else
-#  define DEFAULT_ADB_PORT 5030
+#  define DEFAULT_ADB_PORT 5037
 #endif
 
 #define DEFAULT_ADB_LOCAL_TRANSPORT_PORT 5555

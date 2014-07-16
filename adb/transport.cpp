@@ -543,7 +543,8 @@ transport_read_action(int  fd, struct tmsg*  m)
     int   len = sizeof(*m);
     int   r;
 
-    while(len > 0) {
+    while(len > 0) 
+	{
         r = adb_read(fd, p, len);
         if(r > 0) {
             len -= r;
@@ -588,7 +589,8 @@ static void transport_registration_func(int _fd, unsigned ev, void *data)
     int s[2];
     atransport *t;
 
-    if(!(ev & FDE_READ)) {
+    if(!(ev & FDE_READ))
+	{
         return;
     }
 
@@ -787,14 +789,17 @@ static int qual_match(const char *to_test,
     if (!qual)
         return 0;
 
-    if (prefix) {
-        while (*prefix) {
+    if (prefix)
+	{
+        while (*prefix) 
+		{
             if (*prefix++ != *to_test++)
                 return 0;
         }
     }
 
-    while (*qual) {
+    while (*qual) 
+	{
         char ch = *qual++;
         if (sanitize_qual && qual_char_is_invalid(ch))
             ch = '_';
@@ -1117,25 +1122,25 @@ void register_usb_transport(usb_handle *usb, const char *serial, const char *dev
     D("transport: %p init'ing for usb_handle %p (sn='%s')\n", t, usb,
       serial ? serial : "");
     init_usb_transport(t, usb, (writeable ? CS_OFFLINE : CS_NOPERM));
-	//if (serial) {
-	//	t->serial = strdup(serial);
-	//}
-	GUID guid;
-	char buf[9] = { 0 };
-	CoCreateGuid(&guid);
-	_snprintf_s(
-		buf,
-		sizeof(buf),
-		"%08X"		/*"%08X%04X%04X%02X%02X%02X%02X%02X%02X%02X%02X"*/,
-		guid.Data1, guid.Data2, guid.Data3,
-		guid.Data4[0], guid.Data4[1],
-		guid.Data4[2], guid.Data4[3],
-		guid.Data4[4], guid.Data4[5],
-		guid.Data4[6], guid.Data4[7]);
-	t->serial = new char[strlen(serial)+strlen(buf)+2];
-	strcpy(t->serial, serial);
-	strcat(t->serial, "-");
-	strcat(t->serial, buf);
+	if (serial) {
+		t->serial = strdup(serial);
+	}
+	//GUID guid;
+	//char buf[9] = { 0 };
+	//CoCreateGuid(&guid);
+	//_snprintf_s(
+	//	buf,
+	//	sizeof(buf),
+	//	"%08X"		/*"%08X%04X%04X%02X%02X%02X%02X%02X%02X%02X%02X"*/,
+	//	guid.Data1, guid.Data2, guid.Data3,
+	//	guid.Data4[0], guid.Data4[1],
+	//	guid.Data4[2], guid.Data4[3],
+	//	guid.Data4[4], guid.Data4[5],
+	//	guid.Data4[6], guid.Data4[7]);
+	//t->serial = new char[strlen(serial)+strlen(buf)+2];
+	//strcpy(t->serial, serial);
+	//strcat(t->serial, "-");
+	//strcat(t->serial, buf);
     if(devpath)
 	{
 

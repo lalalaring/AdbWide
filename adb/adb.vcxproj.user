@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>
     </LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>devices</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments> pull /sdcard/secret d:/好</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
